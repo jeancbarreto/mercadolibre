@@ -101,7 +101,7 @@ class DetailsProduct extends Component {
         const { classes } = this.props;
 
         return (
-            <Grid container textAlign={"center"} spacing={1} lg={12} style={{ "width": "1400px", "paddingTop": "8%" }}>
+            <Grid container textAlign={"center"} spacing={1} lg={12} style={{ "width": "1400px", "paddingTop": "2 %" }}>
               
                 <Paper className={classes.paper} style={{ "marginLeft": "15%" }}>
                     <Grid container sm={12} xs={12}>

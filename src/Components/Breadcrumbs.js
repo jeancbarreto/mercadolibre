@@ -115,18 +115,22 @@ class bread extends Component {
     constructor(props) {
         super(props);
 
-        store.subscribe(() => {
-            console.log("breadcrumb " , store.getState());
-        });
-
         this.state = {
             Views: []
         }
+
+
+        store.subscribe(() => {
+            //console.log("breadcrumb ", store.getState());
+            this.onChangeText(store.getState().reduceBreadcrumbs);
+        });
+
     }
 
     onChangeText(valor) {
+      
         this.setState({ Views: valor });
-        console.log(console.log("vistas de breadcrumbs ", this.state.Views));
+        
     }
 
     handleSearching(e) {
@@ -147,14 +151,15 @@ class bread extends Component {
     componentWillMount() {
         //this.setState({ searchQuery: this.props.reducerDocument });
         //console.log("datos de redux ", this.props.reducerDocument);
+        this.state.Views.push(store.getState().reduceBreadcrumbs)
+        this.onChangeText(store.getState().reduceBreadcrumbs);
     }
 
 
     componentDidMount() {
         //this.setState({ _actualizar: (this.state._datos === [] ? false : true) });
         //this.setState({ searchQuery: this.props.reducerDocument });
-        this.state.Views.push(store.getState().reduceBreadcrumbs)
-        this.onChangeText(store.getState().reduceBreadcrumbs);
+        
         
 
     }
@@ -166,14 +171,16 @@ class bread extends Component {
             <div>
                 <Breadcrumbs separator="›" aria-label="Breadcrumb">
                     {this.state.Views.map((vista, index) =>{
-                        
                         if(vista === "Producto"){
                             return(
                             <Link color="inherit" href="/" >
                                 Productos
                             </Link>);
                         }else{
-                            
+                            return (
+                                <Link color="inherit" href="/" >
+                                    {vista}
+                            </Link>); 
                         }
                     })}
                     

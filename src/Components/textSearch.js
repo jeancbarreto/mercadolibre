@@ -130,6 +130,7 @@ class textSeach extends Component{
         //console.log(this.state.searchQuery);
 
         const data = this.state.searchQuery
+        console.log(data);
         const action = {
             type:"actionsDocument",
             payload:data

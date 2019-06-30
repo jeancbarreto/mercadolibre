@@ -10,7 +10,8 @@ import Divider from '@material-ui/core/Divider';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import axios from "axios";
-import actionsDocument from '../redux/actions/actionsDocument'
+import actionsDocument from '../redux/actions/actionsDocument';
+import actionsBreadcrumbs from '../redux/actions/actionsBreadcrumb'
 import { connect } from 'react-redux';
 import store from "../redux/store";
 import { Typography } from "@material-ui/core";
@@ -28,7 +29,7 @@ const styles = theme => ({
     },
     title: {
         marginLeft: '2%',
-        marginTop:30
+        marginTop: 30
     },
     thumbnail: {
         width: '100%',
@@ -46,59 +47,91 @@ const config = {
 class Product extends Component {
     constructor(props) {
         super(props);
-       
-        
+
+
         this.state = {
             valueRedux: "",
             query: "",
-            _items: []
+            _items: [],
+            _itemsFilters: []
         };
         store.subscribe(() => {
-            this.handleAllItem(store.getState());
+            this.handleAllItem(store.getState().reduceDocument, 0);
         });
-        
-        
-        
-        
-        
+
+
+
+
+
     }
 
-    handleAllItem(value) {
-    
-        axios.get("https://api.mercadolibre.com/sites/MLA/search?q=:" + (value !== undefined ? value.reduceDocument : "ipod") + "").then(result => {
-            if (result.data !== undefined) {
-                this.setState({ _items: result.data.results });
-                console.log("datos ", this.state._items);
-            }
-        }).catch(error => {
-            console.log("Error ", error);
+    handleAllItem(value, index) {
+        if (index !== 0 || value !== "") {
+            axios.get("https://api.mercadolibre.com/sites/MLA/search?q=:" + (value !== undefined ? value : "ipod") + "").then(result => {
+                if (result.data !== undefined) {
+                    this.setState({ _items: result.data.results })  ;
+                   
+                        if (result.data.filters[0].values[0].path_from_root !== undefined) {
+                            let data = result.data.filters[0].values[0].path_from_root;
+                            var array = ["Producto"];
+                            data.map((valores, index) => {
+                                array.push(valores.name);
+                            })
+
+                            const action = {
+                                type: "actionsBreadcrumb",
+                                payload: array
+                            }
+                            store.dispatch(action);
+
+                        }
+                    
+                   
+                    //console.log("datos ", result.data.filters[0].values[0].path_from_root);
+                }
+            }).catch(error => {
+                console.log("Error ", error);
+            })
+        }
+    }
+
+    handleSaveFilter(datos) {
+
+        console.log(datos);
+        let data = datos.data.filters[0].values[0].path_from_root;
+        var array = ["Producto"];
+        data.map((valores, index) => {
+            array.push(valores.name);
         })
-    }
 
-    handleClicChangeDocument(event) {
-
-
+        
+        const action = {
+            type: "actionsBreadcrumb",
+            payload: array
+        }
+        store.dispatch(action);
     }
 
 
     componentWillMount() {
-        this.setState({valueRedux : store.getState()});
-        this.handleAllItem();
+        this.setState({ valueRedux: store.getState() });
+
     }
 
 
     componentDidMount() {
         this.setState({ valueRedux: store.getState() });
+        this.handleAllItem();
     }
 
     render() {
         const { classes } = this.props;
 
         return (
-          
-            
+
+
             <Paper className={classes.paper}>
-                
+
                 {this.state._items.map((product, index) => {
                     return (
                         <List className={classes.root}>
@@ -114,7 +147,7 @@ class Product extends Component {
                                                 variant="h4"
                                                 className={classes.title}
                                                 color="textPrimary"
-                                                
+
                                             >
                                                 $ {parseInt(product.price).toLocaleString()}
                                             </Typography></a>
@@ -158,7 +191,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        actionsDocument: (value) => dispatch(actionsDocument(value))
+        actionsDocument: (value) => dispatch(actionsDocument(value)),
+        actionsBreadcrumbs: (value) => dispatch(actionsBreadcrumbs(value))
     }
 }
 
